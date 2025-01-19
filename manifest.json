@@ -1,0 +1,10 @@
+{
+    "id": "card-blanche",
+    "name": "Card Blanche",
+    "description": "Add flashcard into the deck by URI",
+    "isDesktopOnly": false,
+    "js": "main.js",
+    "version": "1.0.0",
+    "author": "whsv26",
+    "authorUrl": "https://github.com/whsv26"
+}

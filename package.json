@@ -1,0 +1,26 @@
+{
+    "name": "card-blanche",
+    "version": "1.0.0",
+    "description": "Add flashcard into the deck by URI",
+    "main": "main.js",
+    "scripts": {
+        "dev": "node esbuild.config.mjs dev",
+        "build": "node esbuild.config.mjs production",
+        "release": "standard-version",
+        "format": "prettier src --check"
+    },
+    "keywords": [],
+    "standard-version": {
+        "t": ""
+    },
+    "author": "whsv26",
+    "license": "MIT",
+    "devDependencies": {
+        "@types/uuid": "^8.3.4",
+        "obsidian": "^1.1.1",
+        "standard-version": "^9.5.0",
+        "tslib": "^2.4.1",
+        "typescript": "^5.1.6",
+        "esbuild": "^0.18.10"
+    }
+}

@@ -1,0 +1,13 @@
+# Intellij
+*.iml
+.idea
+
+# npm
+node_modules
+main.js
+
+# build
+*.js.map
+
+.prettierignore
+/data.json
