@@ -19,11 +19,11 @@ By integrating seamlessly with Obsidian's workspace, this plugin allows you to g
 
 ## Usage
 
-<img src="https://github.com/user-attachments/assets/2222f990-509c-4cde-b3a9-3bf2af418eab" height="100">
-<img src="https://github.com/user-attachments/assets/adb9a537-0392-45e4-8067-0d198a9d8334" height="100">
-<img src="https://github.com/user-attachments/assets/72cff645-1a4c-42b6-bae4-4f3efb42a328" height="100">
-<img src="https://github.com/user-attachments/assets/55961f32-a16d-4352-b988-5b5aec205ffa" height="100">
-<img src="https://github.com/user-attachments/assets/3006d95a-5314-44ff-848e-3edaf1ab4a60" height="100">
+<img src="https://github.com/user-attachments/assets/2222f990-509c-4cde-b3a9-3bf2af418eab" width="100" height="100">
+<img src="https://github.com/user-attachments/assets/e61ae4f5-4411-476a-ac23-a54946758089" width="100" height="100">
+<img src="https://github.com/user-attachments/assets/64728138-5eb5-4134-827d-fc303a1362f1" width="100" height="100">
+<img src="https://github.com/user-attachments/assets/55961f32-a16d-4352-b988-5b5aec205ffa" width="100" height="100">
+<img src="https://github.com/user-attachments/assets/3006d95a-5314-44ff-848e-3edaf1ab4a60" width="100" height="100">
 
 ### Creating a Flashcard
 1. Use the following URI format to create a new flashcard:
