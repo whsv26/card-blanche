@@ -1,4 +1,5 @@
-import { Language, Word } from "./types";
+import { Language } from "./Language";
+import { Word } from "./Word";
 
 export interface DictionaryApi {
     defineWord(word: string, lang: Language): Promise<Word[]>;
@@ -12,4 +13,4 @@ export function makeDictionaryApi(): DictionaryApi {
             return words;
         },
     };
-};
+}

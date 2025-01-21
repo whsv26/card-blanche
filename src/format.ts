@@ -1,4 +1,5 @@
-import { Card, Word } from "./types";
+import Card from "./cards/Card";
+import { Word } from "./dictionary/Word";
 
 export const formatCard =
     (card: Card, isMultiline: boolean): string => {

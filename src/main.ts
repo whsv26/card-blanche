@@ -1,19 +1,17 @@
-import { Plugin } from "obsidian";
-import { Parameters } from "./types";
+import { ObsidianProtocolData, Plugin } from "obsidian";
 import ObsidianFacade from "./obsidian";
-import { makeDictionaryApi } from "./api";
+import { makeDictionaryApi } from "./dictionary/DictionaryApi";
+import { makeCardAnswerResolver, makeManualCardAnswerResolver } from "./cards/CardAnswerResolver";
+import { makeDictionaryCardAnswerResolver } from "./dictionary/DictionaryCardAnswerResolver";
 import {
-    AddCardCommandHandler,
-    AddCardCommandFactory,
-    getDefaultLanguage,
+    AddCardCommandFactory, getDefaultFileName,
     getDefaultFolderPath,
-    getDefaultMultiline, getDefaultFileName,
-} from "./handlers";
-import {
-    makeCardAnswerResolver,
-    makeDictionaryCardAnswerResolver,
-    makeManualCardAnswerResolver,
-} from "./resolvers";
+    getDefaultLanguage,
+    getDefaultMultiline,
+} from "./cards/AddCardCommandFactory";
+import AddCardCommandHandler from "./cards/AddCardCommandHandler";
+import { CardAnswer, CardQuestion } from "./cards/Card";
+import { Language } from "./types";
 
 export default class CardBlanche extends Plugin {
 
@@ -59,4 +57,13 @@ export default class CardBlanche extends Plugin {
             },
         );
     }
+}
+
+interface Parameters extends ObsidianProtocolData {
+    folderPath?: string;
+    fileName?: string;
+    cardQuestion?: CardQuestion;
+    cardAnswer?: CardAnswer;
+    multiline?: "true" | "false";
+    language?: Language;
 }
