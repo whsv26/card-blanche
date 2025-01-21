@@ -2,8 +2,18 @@ import { Plugin } from "obsidian";
 import { Parameters } from "./types";
 import ObsidianFacade from "./obsidian";
 import { makeDictionaryApi } from "./api";
-import { AddCardHandler } from "./handlers";
-import { makeCardAnswerResolver, makeDictionaryCardAnswerResolver, makeManualCardAnswerResolver } from "./resolvers";
+import {
+    AddCardCommandHandler,
+    AddCardCommandFactory,
+    getDefaultLanguage,
+    getDefaultFolderPath,
+    getDefaultMultiline, getDefaultFileName,
+} from "./handlers";
+import {
+    makeCardAnswerResolver,
+    makeDictionaryCardAnswerResolver,
+    makeManualCardAnswerResolver,
+} from "./resolvers";
 
 export default class CardBlanche extends Plugin {
 
@@ -14,11 +24,38 @@ export default class CardBlanche extends Plugin {
             makeManualCardAnswerResolver(),
             makeDictionaryCardAnswerResolver(dictionaryApi),
         );
+        const addCardCommandFactory = new AddCardCommandFactory(
+            cardAnswerResolver,
+            getDefaultLanguage,
+            getDefaultFolderPath,
+            getDefaultMultiline,
+            getDefaultFileName
+        );
+        const addCardCommandHandler = new AddCardCommandHandler(obsidian)
 
         this.registerObsidianProtocolHandler(
             "card-blanche-add-card",
             async (params: Parameters) => {
-                await new AddCardHandler(obsidian, cardAnswerResolver).handle(params);
+                const parseBoolean = (value: string|null): boolean|null => {
+                    if (value === "true") return true;
+                    if (value === "false") return false;
+                    return null;
+                }
+
+                if (!params.cardQuestion) {
+                    return Promise.reject(new Error("Missing required parameter: cardQuestion"))
+                }
+
+                const addCardCommand = await addCardCommandFactory.make({
+                    question: params.cardQuestion,
+                    answer: params.cardAnswer,
+                    folderPath: params.folderPath,
+                    fileName: params.fileName,
+                    language: params.language,
+                    multiline: parseBoolean(params.multiline),
+                })
+
+                await addCardCommandHandler.handle(addCardCommand);
             },
         );
     }

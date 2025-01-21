@@ -1,38 +1,84 @@
 import ObsidianFacade from "./obsidian";
-import { Card, Parameters } from "./types";
+import { Card, CardAnswer, CardQuestion, Language } from "./types";
 import { formatCard, formatDate } from "./format";
-import { CardAnswerResolver } from "./resolvers";
 import { TFile } from "obsidian";
+import { CardAnswerResolver } from "./resolvers";
 
-export class AddCardHandler {
+export interface AddCardCommand {
+    folderPath: string;
+    fileName: string;
+    card: Card;
+    isMultiline: boolean;
+    language: Language;
+}
+
+interface AddCardCommandFactoryInput {
+    question: CardQuestion;
+    answer?: CardAnswer;
+    folderPath?: string;
+    fileName?: string;
+    language?: Language;
+    multiline?: boolean;
+}
+
+export function getDefaultLanguage(): Language {
+    return "en";
+}
+
+export function getDefaultFolderPath(): string {
+    return "flashcards";
+}
+
+export function getDefaultMultiline(): boolean {
+    return true;
+}
+
+export function getDefaultFileName(): string {
+    return formatDate(new Date());
+}
+
+export class AddCardCommandFactory {
+
     constructor(
-        private readonly obsidian: ObsidianFacade,
         private readonly cardAnswerResolver: CardAnswerResolver,
+        private readonly defaultLanguage = getDefaultLanguage,
+        private readonly defaultFolderPath = getDefaultFolderPath,
+        private readonly defaultMultiline = getDefaultMultiline,
+        private readonly defaultFileName = getDefaultFileName,
     ) {
     }
 
-    public async handle(params: Parameters): Promise<void> {
-        const isMultiline = params.multiline !== "false";
-        const card = await this.createCard(params);
-        const formattedCard = formatCard(card, isMultiline);
-        const note = await this.findOrCreateNote(params);
+    public async make(input: AddCardCommandFactoryInput): Promise<AddCardCommand> {
+        return {
+            folderPath: input.folderPath ?? this.defaultFolderPath(),
+            fileName: input.fileName ?? this.defaultFileName(),
+            isMultiline: input.multiline ?? this.defaultMultiline(),
+            language: input.language ?? this.defaultLanguage(),
+            card: {
+                question: input.question,
+                answer: await this.cardAnswerResolver.resolve({
+                    language: input.language ?? this.defaultLanguage(),
+                    question: input.question,
+                    answer: input.answer,
+                }),
+            },
+        };
+    }
+}
+
+export class AddCardCommandHandler {
+    constructor(private readonly obsidian: ObsidianFacade) {
+    }
+
+    public async handle(command: AddCardCommand): Promise<void> {
+        const formattedCard = formatCard(command.card, command.isMultiline);
+        const note = await this.findOrCreateNote(command);
         await this.obsidian.openNoteAndAppend(note, formattedCard);
     }
 
-    private async findOrCreateNote(params: Parameters): Promise<TFile> {
-        const folderPath = params.folderPath ?? "flashcards";
-        await this.obsidian.createFolderIfNotExists(folderPath);
-        const fileName = params.fileName ?? formatDate(new Date());
-        const filePath = `${folderPath}/${fileName}.md`;
+    private async findOrCreateNote(command: AddCardCommand): Promise<TFile> {
+        await this.obsidian.createFolderIfNotExists(command.folderPath);
+        const filePath = `${command.folderPath}/${command.fileName}.md`;
         return await this.obsidian.findOrCreateFile(filePath);
-    }
-
-    private async createCard(params: Parameters): Promise<Card> {
-        const question = params.cardQuestion;
-        if (!question) {
-            return Promise.reject("Question is required to create a card");
-        }
-        const answer = await this.cardAnswerResolver.resolve(params);
-        return { question, answer };
     }
 }

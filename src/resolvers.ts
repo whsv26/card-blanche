@@ -1,31 +1,42 @@
-import { CardAnswer, Parameters } from "./types";
+import { CardAnswer, CardQuestion, Language } from "./types";
 import { DictionaryApi } from "./api";
 import { formatWords } from "./format";
 
-export interface CardAnswerResolver {
-    supports(params: Parameters): boolean;
-    resolve(params: Parameters): Promise<CardAnswer>;
+interface CardAnswerResolverContext {
+    language: Language;
+    question: CardQuestion;
+    answer?: CardAnswer;
 }
+
+export interface CardAnswerResolver {
+    supports(context: CardAnswerResolverContext): boolean;
+    resolve(context: CardAnswerResolverContext): Promise<CardAnswer>;
+}
+
+const hasAnswer =
+    (context: CardAnswerResolverContext) => {
+        return (context.answer ?? "") !== "";
+    };
 
 export function makeManualCardAnswerResolver(): CardAnswerResolver {
     return {
-        supports(params: Parameters): boolean {
-            return (params.cardAnswer ?? "") !== "";
+        supports(context: CardAnswerResolverContext): boolean {
+            return hasAnswer(context);
         },
-        resolve(params: Parameters): Promise<CardAnswer> {
-            return Promise.resolve(params.cardAnswer);
+        resolve(context: CardAnswerResolverContext): Promise<CardAnswer> {
+            return Promise.resolve(context.answer);
         },
     };
 }
 
 export function makeDictionaryCardAnswerResolver(api: DictionaryApi): CardAnswerResolver {
     return {
-        supports(params: Parameters): boolean {
-            return (params.cardAnswer ?? "") !== "";
+        supports(context: CardAnswerResolverContext): boolean {
+            return !hasAnswer(context);
         },
-        async resolve(params: Parameters): Promise<CardAnswer> {
-            const lang = params.language ?? "en";
-            const words = await api.defineWord(params.cardQuestion, lang);
+        async resolve(context: CardAnswerResolverContext): Promise<CardAnswer> {
+            const lang = context.language;
+            const words = await api.defineWord(context.question, lang);
             return formatWords(words);
         },
     };
@@ -33,16 +44,18 @@ export function makeDictionaryCardAnswerResolver(api: DictionaryApi): CardAnswer
 
 export function makeCardAnswerResolver(...resolvers: CardAnswerResolver[]): CardAnswerResolver {
     return {
-        supports(params: Parameters): boolean {
-            return resolvers.some(resolver => resolver.supports(params));
+        supports(context: CardAnswerResolverContext): boolean {
+            return resolvers.some(resolver => resolver.supports(context));
         },
-        resolve(params: Parameters): Promise<CardAnswer> {
+        resolve(context: CardAnswerResolverContext): Promise<CardAnswer> {
             for (const resolver of resolvers) {
-                if (resolver.supports(params)) {
-                    return resolver.resolve(params);
+                if (resolver.supports(context)) {
+                    return resolver.resolve(context);
                 }
             }
-            return Promise.reject("Answer can't be resolved");
+            return Promise.reject(
+                new Error(`No resolver supports the given context: ${JSON.stringify(context)}`)
+            );
         },
     };
 }
