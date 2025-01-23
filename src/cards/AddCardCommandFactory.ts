@@ -1,8 +1,8 @@
-import { formatDate } from "../format";
 import { CardAnswerResolver } from "./CardAnswerResolver";
 import { AddCardCommand } from "./AddCardCommand";
 import { Language } from "../dictionary/Language";
-import { CardAnswer, CardQuestion } from "./Card";
+import { CardAnswer, CardAnswerSource, CardQuestion } from "./Card";
+import { formatDate } from "./CardFormat";
 
 export class AddCardCommandFactory {
 
@@ -15,18 +15,19 @@ export class AddCardCommandFactory {
     ) {
     }
 
-    public async make(input: AddCardCommandFactoryInput): Promise<AddCardCommand> {
+    public async make(props: Props): Promise<AddCardCommand> {
         return {
-            folderPath: input.folderPath ?? this.defaultFolderPath(),
-            fileName: input.fileName ?? this.defaultFileName(),
-            isMultiline: input.multiline ?? this.defaultMultiline(),
-            language: input.language ?? this.defaultLanguage(),
+            folderPath: props.folderPath ?? this.defaultFolderPath(),
+            fileName: props.fileName ?? this.defaultFileName(),
+            isMultiline: props.multiline ?? this.defaultMultiline(),
+            language: props.language ?? this.defaultLanguage(),
             card: {
-                question: input.question,
+                question: props.question,
                 answer: await this.cardAnswerResolver.resolve({
-                    language: input.language ?? this.defaultLanguage(),
-                    question: input.question,
-                    answer: input.answer,
+                    answerSource: props.answerSource ?? CardAnswerSource.Manual,
+                    language: props.language ?? this.defaultLanguage(),
+                    question: props.question,
+                    answer: props.answer,
                 }),
             },
         };
@@ -49,9 +50,10 @@ export function getDefaultFileName(): string {
     return formatDate(new Date());
 }
 
-interface AddCardCommandFactoryInput {
+interface Props {
     question: CardQuestion;
     answer?: CardAnswer;
+    answerSource?: CardAnswerSource;
     folderPath?: string;
     fileName?: string;
     language?: Language;

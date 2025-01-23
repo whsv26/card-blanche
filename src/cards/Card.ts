@@ -6,3 +6,9 @@ export default interface Card {
 export type CardQuestion = string
 
 export type CardAnswer = string
+
+export enum CardAnswerSource {
+    Wikipedia = "wikipedia",
+    Dictionary = "dictionary",
+    Manual = "manual",
+}

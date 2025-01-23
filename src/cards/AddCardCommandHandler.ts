@@ -1,7 +1,7 @@
-import ObsidianFacade from "../obsidian";
-import { formatCard } from "../format";
+import ObsidianFacade from "../obsidian/ObsidianFacade";
 import { TFile } from "obsidian";
 import { AddCardCommand } from "./AddCardCommand";
+import { formatCard } from "./CardFormat";
 
 export default class AddCardCommandHandler {
     constructor(private readonly obsidian: ObsidianFacade) {
