@@ -10,7 +10,8 @@ export default class AddCardCommandHandler {
     public async handle(command: AddCardCommand): Promise<void> {
         const formattedCard = formatCard(command.card, command.isMultiline);
         const note = await this.findOrCreateNote(command);
-        await this.obsidian.openNoteAndAppend(note, formattedCard);
+        const leaf = await this.obsidian.openNoteAndAppend(note, formattedCard);
+        this.obsidian.scrollToBottom(leaf)
     }
 
     private async findOrCreateNote(command: AddCardCommand): Promise<TFile> {

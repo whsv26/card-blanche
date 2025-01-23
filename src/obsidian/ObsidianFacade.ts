@@ -1,4 +1,4 @@
-import { FileView, TFile, Vault, Workspace, WorkspaceLeaf } from "obsidian";
+import { FileView, MarkdownView, TFile, Vault, Workspace, WorkspaceLeaf } from "obsidian";
 
 export default class ObsidianFacade {
 
@@ -32,15 +32,17 @@ export default class ObsidianFacade {
         }
     }
 
-    public async openNoteAndAppend(noteFile: TFile, data: string): Promise<void> {
-        await this.openNote(noteFile);
+    public async openNoteAndAppend(noteFile: TFile, data: string): Promise<WorkspaceLeaf> {
+        const leaf = await this.openNote(noteFile);
         await this.vault.append(noteFile, data);
+        return Promise.resolve(leaf);
     }
 
-    public async openNote(file: TFile): Promise<void> {
+    public async openNote(file: TFile): Promise<WorkspaceLeaf> {
         const leaf = this.findOrCreateTabLeaf(file.path);
         await leaf.openFile(file);
         this.workspace.setActiveLeaf(leaf, { focus: true });
+        return Promise.resolve(leaf)
     }
 
     public findOrCreateTabLeaf(filePath: string): WorkspaceLeaf | null {
@@ -54,5 +56,13 @@ export default class ObsidianFacade {
             }
         });
         return leaf ?? this.workspace.getLeaf("tab");
+    }
+
+    public scrollToBottom(leaf: WorkspaceLeaf): void {
+        if (leaf.view instanceof MarkdownView) {
+            const editor = leaf.view.editor;
+            const lastLine = editor.lastLine();
+            leaf.view.currentMode.applyScroll(lastLine)
+        }
     }
 }
